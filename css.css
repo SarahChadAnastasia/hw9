@@ -1,4 +1,13 @@
-body {
+
+#dropDown{
+	border: 5px
+}
+
+#loginbutton{
+	border: 5px
+}
+
+/*body {
 	font-size: 14px;
 	background: #CCFF99;
 	color: #52663D;
@@ -115,4 +124,4 @@ button {
 
 button#logout {
 	float:center;
-}
+}*/
