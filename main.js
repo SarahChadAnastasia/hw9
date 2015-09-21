@@ -7,12 +7,11 @@ $(function() { //when DOM is ready...
 		{username:'Chad'}
 	]);
 
-	app.tasks = new TaskCollection([
+	app.tasks = new IssueCollection([
 		// test data here
 	]);
 
 	app.gui = new GUI(app.users,
 						app.tasks,
 						'#app');// selector of main div
-}
-//comment 
+})
