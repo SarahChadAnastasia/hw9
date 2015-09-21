@@ -1,41 +1,12 @@
 var GUI = (function() { //IIFE for all Views
 
       var TaskView = Backbone.View.extend({
-        // 	className: 'taskView',
-        //     render: function () {
-        //         var textVal = this.model.get("value");
-        //         var btn = '<button>Clear</button>';
-        //         var input = '<input type="text" value="' + textVal + '" />';
-        //         this.$el.html("<div>" + input + btn + "</div>");
-        //     },
-        //     initialize: function () {
-        //         this.model.on("change", this.render, this);
-        //     },
-        //     events : {
-        //         "click button" : "clear",
-        //         "keypress input" : "updateOnEnter"
-        //     },
-        //     replace : function () {
-        //         var str = this.$el.find("input").val();
-        //         this.model.replace(str);
-        //     },
-        //     clear: function () {
-        //         this.model.replace("");
-        //     },
-        //     updateOnEnter: function (e){
-        //         if(e.keyCode == 13) {
-        //             this.replace();
-        //         }
-        //     }
-        // });
-
       });
 
-      var CreateTaskView = Backbone.View.extend(
+      var CreateTaskView = Backbone.View.extend({
+      });
 
-  });
-
-  var AppView = Backbone.View.extend({
+      var AppView = Backbone.View.extend({
 
       });
 
@@ -48,89 +19,72 @@ var GUI = (function() { //IIFE for all Views
       });
 
       var UserView = Backbone.View.extend({
-          className: 'userView',
-          template: _.template($('<div class="userViewHeader"><span class="username">{{username}}</span>!<button id="logout">Log Out</button></div>' +
-            '<div id="unassignedTasks"></div>' +
-            '<div id="myTasks"></div>').html()),
+        render: function() {
+          var usernameForTaskView = '<div class="userViewHeader">"username">{{username}}</div>';
+          var logoutBtn = '<button id="logout">Log Out</button></div>';
+          var createTask = '<button id="create task">Create Task</button></div>';
+          var userUnassignedTask = '<div id="userUnassignedTask"></div>';
+          var myTasks = '<div id="myTasks"></div>';
+        this.el.html(usernameTask + logoutBtn + createTask + userUnassignedTask + myTasks);
+          },
+
           events: {
-            'click #logout': 'logout'
+            'click #logout': 'logout',
+            'click #createTask': 'create'
           },
 
           initialize: function() {
-            this.listenTo(this.model, "change", this.render);
-            this.listenTo(this.model, "destroy", this.remove);
+            // this.$el.appendTo('#app');
+		        // this.render();
           },
-          render: function() {
-            this.$el.html(this.template(this.model.toJSON()));
-            this.$el.toggleClass("done", this.model.get("done"));
-            this.input = this.$(".edit");
-            return this;
-          },
+
           logout: function() {
-            app.navigate('login', {
-              trigger: true
-            });
-          }):
-
-        var LoginView = Backbone.View.extend({
-          el: $("#taskUser"),
-
-          initialize: function() {
-            var that = this;
-            this.usersForTasks = new IssueModel(); //listeClients
-            this.usersTasks = new IssueModel(); //listClients
-            this.usersForTasks.bind("add", function(model) { //listeClients
-              that.addUser(model);
-            });
-            this.usersTasks.bind("add", function(model) {
-              that.register(model);
-            });
-          },
-          events: {
-            'click #login': 'login'
+            var memberBye = $("logoutBtn").val();
+           var view = new UserView({model: userModel});
+           view.render();
+           this.$("#app").append(view.$el);
           },
 
-          addUser_Click: function() {
-            var userForList = new User({
-              name: $("#userLoginName").val(),
-              // pwd: $("#userLoginPassword").val(),
-            });
+          create: function() {
 
-            this.usersForTasks.add(userForList);
           },
 
-          login: function() {
-            var userLogin = new User({
-              name: $("#correctUser").val(),
-              // pwd: $("#correctPword").val(),
-            });
+          });
 
-            this.usersTasks.add(userLogin);
-            //new UserView - link to UserView View????
-          },
 
-          addUser: function(model) {
-            name = model.get('name');
-            // pass = model.get('pwd');
-            $("#usersForTasks").html("<font size=5 color=green>You are Successfully Registered, Login PLease</font>");
-          },
+var LoginView = Backbone.View.extend({
+  render : function () {
 
-          register: function(model) {;
-            if (model.get('name') == name && model.get('pwd') == pass) {
-              $("#divUser").html("<font size=4 color=blue>Login sucessful</font>");
-            } else {
-              $("#listUsers").html("<font size=5 color=green>Failed Logged in, Please Re-enter</font>");
-            }
-          }
-        });
+  var dropDown = '<select id = "dropDown"><option value="chad">'+app.users.at(2).get("username")+'</option><option value="sarah">'+app.users.at(1).get("username")+'</option><option value="Anastasia">'+app.users.at(0).get("username")+'</option></select>';
+  //  var btn = '<button id="loginbutton">Login</button>';
+  //  var taskListLogIn = '<input type="text" id="taskUser" placeholder="Username">';
+    this.$el.html(dropDown);
+    },
+
+  // initialize : function () {
+  // },
+    events : {
+        "change #dropDown" : "login"
+    },
+
+  login : function () {
+    var member = $("dropDown").val();
+    console.log(member);
+  //  $("#dropDown option[value='" + selectValue + "']").attr("selected", "selected");
+   var userModel = app.users.findWhere({username: member});
+   //returns the first model that it matches
+   var view = new UserView({model: userModel});
+   view.render();
+   this.$("#app").append(view.$el);
+ }
+});
+
 
         // generic ctor to represent interface:
         function GUI(users, tasks, el) {
-          // users is collection of User models
-          // tasks is collection of Task models
-          // el is selector for where GUI connects in DOM
-
-          //...
+        var firstview = new LoginView();
+        firstview.render();
+        $("#app").append(firstview.$el);
         }
 
         return GUI;
