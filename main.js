@@ -8,10 +8,39 @@ $(function() { //when DOM is ready...
 	]);
 
 	app.tasks = new IssueCollection([
-		// test data here
+      { title:      'Build Models',
+        description:'Build the User and Issue models.',
+        creator:    'Chad',
+        assignee:   '',
+        status:     'unassigned'
+      },
+      { title:      'Build Main Views',
+        description:'Build the Login and User views. Add Logout and New Task buttons to User view.',
+        creator:    'Anastasia',
+        assignee:   '',
+        status:     'unassigned'
+      },
+      { title:      'Build Task Views',
+        description:'Build the User, Unassigned and New Task Views.',
+        creator:    'Sarah',
+        assignee:   '',
+        status:     'unassigned'
+      },
+      { title:      'Testing',
+        description:'Tie the task views to the Issues Collection and test that all buttons and view switches are working correctly.',
+        creator:    'Chad',
+        assignee:   '',
+        status:     'unassigned'
+      },
+      { title:      'Zoolander',
+        description:'Make it look good!.',
+        creator:    'Anastasia',
+        assignee:   '',
+        status:     'unassigned'
+      },
 	]);
 
 	app.gui = new GUI(app.users,
 						app.tasks,
 						'#app');// selector of main div
-})
+});
