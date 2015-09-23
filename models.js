@@ -1,11 +1,13 @@
 var UserModel = Backbone.Model.extend({
   defaults: {
-    username:''
+    username:'',
+    tasksCreated: [],
+    assignedTasks: []
   },
     addUser : function (str) {
       this.set("username", str);
   }
-})
+});
 
 var IssueModel = Backbone.Model.extend({
   defaults: {
@@ -27,12 +29,12 @@ var IssueModel = Backbone.Model.extend({
     this.set("assignee", user);
     this.set("status", status);
   }
-})
+});
 
 var UserCollection = Backbone.Collection.extend({
   model : UserModel
-})
+});
 
 var IssueCollection = Backbone.Collection.extend({
   model : IssueModel
-})
+});
