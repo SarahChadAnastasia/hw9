@@ -34,14 +34,22 @@
 
 #unassignedTasks {
   width: 500px;
-  height: 300px;
+  min-height: 300px;
+  height: auto;
+  margin: 80px auto 0px auto;
+  padding: 10px 10px;
+  overflow:auto;
   background-color: lightgrey;
   margin: 0 auto;
 }
 
 #myTasks {
   width: 500px;
-  height: 300px;
+  min-height: 300px;
+  height: auto;
+  margin: 80px auto 0px auto;
+  padding: 10px 10px;
+  overflow:auto;
   background-color: lightsteelblue;
   margin: 0 auto;
 }

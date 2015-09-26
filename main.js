@@ -17,14 +17,14 @@ $(function() { //when DOM is ready...
       { title:      'Build Main Views',
         description:'Build the Login and User views. Add Logout and New Task buttons to User view.',
         creator:    'Anastasia',
-        assignee:   '',
-        status:     'unassigned'
+        assignee:   'Chad',
+        status:     'assigned'
       },
       { title:      'Build Task Views',
         description:'Build the User, Unassigned and New Task Views.',
         creator:    'Sarah',
-        assignee:   '',
-        status:     'unassigned'
+        assignee:   'Sarah',
+        status:     'assigned'
       },
       { title:      'Testing',
         description:'Tie the task views to the Issues Collection and test that all buttons and view switches are working correctly.',
@@ -35,8 +35,8 @@ $(function() { //when DOM is ready...
       { title:      'Zoolander',
         description:'Make it look good!.',
         creator:    'Anastasia',
-        assignee:   '',
-        status:     'unassigned'
+        assignee:   'Anastasia',
+        status:     'assigned'
       },
 	]);
 
