@@ -39,7 +39,34 @@ var GUI = (function() { //IIFE for all Views
   //////////////////////////////////////////////////////////////////////////////
 
   var CreateTaskView = Backbone.View.extend({
+    
+    render: function(user) {
+      var createTaskViewContainer = '<div id="createTaskViewContainer">';
+      var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
+      var descrInput = '<textarea id="description"></textarea>';//text area
+      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
+      var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
+      var saveTask = '<button id="saveTask">Save Task</button>';
+      var closeDiv = '</div>';
+      this.$el.html(createTaskViewContainer  + "Task Title" + "<div>" + titleInput + "</div>" +
+        "Description" + "<br><div>" + descrInput + "</div>" + "<br><div>" + "</div>" +
+          "Assigned To" + "<br><div>" + assignedTo + "</div>" + "<br><div>" + saveTask + "</div>" +  closeDiv);
+    },
+    
+    events: {
+      "click #saveTask": "save",
 
+    },
+    
+    save: function() {
+      console.log('click heard on saveTask button : ' + app.currentUser);
+      var task = new IssueModel();
+      var newTitle =  $("#newTaskTitle").val();
+      var newDesc =  $("#description").val();
+      var newAssignee =  $("#dropDown").val();
+      app.tasks.add({username: app.currentUser, creator: app.currentUser, title: newTitle, description: newDesc, assignee: newAssignee});
+      console.log(app.tasks.at(5));
+    },
 
   });
 
@@ -86,19 +113,19 @@ var GUI = (function() { //IIFE for all Views
   //////////////////////////////////////////////////////////////////////////////
 
   var UserTasksView = Backbone.View.extend({
-   className: 'myTasks',
-   initalize: function() {
-     this.listenTo(app.tasks, 'update', this.render);
-   },
+    className: 'myTasks',
+    initalize: function() {
+      this.listenTo(app.tasks, 'update', this.render);
+    },
 
-  render: function() {
+    render: function() {
       var label = '<h2>My Tasks</h2>';
       this.$el.html(label);
       for(var i = 0; i<app.tasks.length; i++){
           if(app.tasks.at(i).get("assignee") === app.currentUser){
-          var taskView2 = new TaskView({"model": app.tasks.at(i), "index": 0});
-          this.$el.append(taskView2.$el.html());
-        }
+            var taskView2 = new TaskView({"model": app.tasks.at(i), "index": 0});
+            this.$el.append(taskView2.$el.html());
+          }
       }
     },
   });
@@ -119,16 +146,14 @@ var GUI = (function() { //IIFE for all Views
       var userHeader = '<h2>Team SAC Issue Tracker</h2><h3>User: ' + user + '</h3>';
       var unassignedTasks = '<div id="unassignedTasks"></div>';
       var myTasks = '<div id="myTasks"></div>';
-      var buttons = '<button id="logout">Logout</button>';
-      var createTask = '<button id="createTask">Create Task</button>';
+      var buttons = '<button id="createTask">Create Task</button><button id="logout">Logout</button>';
+      //var createTask = '<button id="createTask">Create Task</button>';
       var closeDiv = '</div>';
-      var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
-      var descrInput = '<textarea id="description"></textarea>';//text area
-      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
-      var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
-      this.$el.html(userViewContainer + userHeader + unassignedTasks + myTasks + buttons + "Task Title" + "<div>" + titleInput + "</div>" +
-        "Description" + "<br><div>" + descrInput + "</div>" + "<br><div>" + "</div>" +
-          "Assigned To" + "<br><div>" + assignedTo + "</div>" + "<br><div>" + createTask + "</div>" +  closeDiv);
+//      var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
+//      var descrInput = '<textarea id="description"></textarea>';//text area
+//      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
+//      var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
+      this.$el.html(userViewContainer + userHeader + unassignedTasks + myTasks + buttons  +  closeDiv);
     },
 
     events: {
@@ -152,16 +177,22 @@ var GUI = (function() { //IIFE for all Views
 
 
     createTask: function() {
-        var task = new IssueModel();
-        app.tasks.add(task);
-      console.log("createTask is running:", app.tasks);
+      console.log('click heard on createTask button');
+      var createTaskView = new CreateTaskView();
+      createTaskView.render();
+      //$("#app").empty();
+      $("#app").append(createTaskView.$el);
+//      var task = new IssueModel();
+//      app.tasks.add(task);
+//      console.log("createTask is running:", task);
+//      console.log('here is a task ' + app.tasks.get(4));
     // this.model.set({'title': titleText});
     // app.tasks.push({"title": titleText});
     // var descriptionText = $(this.el).find('input#description').val();
     // this.model.set({'title': description});
     //   var descrStr = this.$el.find("#description").val();
 
-    }
+    },
   });
 
   //////////////////////////////////////////////////////////////////////////////
