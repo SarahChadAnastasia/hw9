@@ -13,23 +13,80 @@ var GUI = (function() { //IIFE for all Views
   var TaskView = Backbone.View.extend({
 
     render: function() {
-
+      console.log('COLLECTION: ' + app.tasks);
       var title = this.model.get("title");
       var description = this.model.get("description");
       var creator = this.model.get("creator");
       var assignee = this.model.get("assignee");
-      var status = this.model.get("status");
-      this.$el.html('<b>' + "Title: " + '</b>' + title  + '<br>' + '<b>' + "Description: " + '</b>' + description + '<br>' + "Creator: " + '</b>' + creator  + '<br>' +  "Assignee: " + '</b>' + assignee + '<br>' + 'Status: ' + status + " " + '<br></br>' );
+      var statusDropdown = '<select class="taskStatusDropDown" name="status"><option value=""><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="done">Done</option></select>';
+      this.$el.html('<b>' + "Title: " + '</b>' + title  + '<br>' + '<b>' + "Description: " + '</b>' + description + '<br>' + "Creator: " + '</b>' + creator  + '<br>' +  "Assignee: " + '</b>' + assignee + '<br>' + 'Status: ' + statusDropdown + " " + '<br></br>' );
     },
 
-    initialize: function() {
+    initialize: function(opts) {
       this.listenTo(app.tasks, 'update', this.render);
       this.render();
+      this.parent = opts.parent;
     },
 
-    listener : function() {
-      console.log("task view is listening");
-    }
+    events: {
+      "change .taskStatusDropDown": "viewUpdate"
+    },
+    
+    viewUpdate: function(e) {
+      console.log('status changed');
+//      console.log(e);
+//      console.log(this.$el.children(".taskStatusDropDown")[0]);
+      
+      var newStatus = $(this.$el.children(".taskStatusDropDown")[0]).val();
+//      console.log('newStatus is: ' + newStatus);
+//      console.log('This element is : ', this.parent.$el);
+      
+      if (newStatus === "assigned") {
+        this.model.set("assignee", app.currentUser);
+        this.model.set("status", "");
+        //console.log('new assignee: ' + this.model.get("assignee"));
+        var newUnassignedTaskView = new UnassignedTasksView();
+//        console.log('created new UTView');
+        var newUserTasksView = new UserTasksView();
+        
+        $("#unassignedTasks").empty();
+        newUnassignedTaskView.render();
+        $("#unassignedTasks").append(newUnassignedTaskView.$el);
+        //console.log('rendered new UTView');
+        $("#myTasks").empty();
+        newUserTasksView.render();
+        $("#myTasks").append(newUserTasksView.$el);
+        
+        
+      } else if (newStatus === "done") {
+          //remove model from collection
+          this.model.destroy();
+          // refresh unassigned task view
+          var newUnassignedTaskView = new UnassignedTasksView();
+          $("#unassignedTasks").empty();
+          newUnassignedTaskView.render();
+          $("#unassignedTasks").append(newUnassignedTaskView.$el);
+          // refresh my task view
+          var newUserTasksView = new UserTasksView();
+          $("#myTasks").empty();
+          newUserTasksView.render();
+          $("#myTasks").append(newUserTasksView.$el);
+        } else if (newStatus === "unassigned") {
+            this.model.set("assignee", "");
+            this.model.set("status", "unassigned");
+            // refresh unassigned task view
+            var newUnassignedTaskView = new UnassignedTasksView();
+            $("#unassignedTasks").empty();
+            newUnassignedTaskView.render();
+            $("#unassignedTasks").append(newUnassignedTaskView.$el);
+            // refresh my task view
+            var newUserTasksView = new UserTasksView();
+            $("#myTasks").empty();
+            newUserTasksView.render();
+            $("#myTasks").append(newUserTasksView.$el);
+          }
+
+    },
 
   });
 
@@ -44,13 +101,11 @@ var GUI = (function() { //IIFE for all Views
       var createTaskViewContainer = '<div id="createTaskViewContainer">';
       var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
       var descrInput = '<textarea id="description"></textarea>';//text area
-      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
-      var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
+      //var assignee = this.model.get("assignee");
       var saveTask = '<button id="saveTask">Save Task</button>';
       var closeDiv = '</div>';
       this.$el.html(createTaskViewContainer  + "Task Title" + "<div>" + titleInput + "</div>" +
-        "Description" + "<br><div>" + descrInput + "</div>" + "<br><div>" + "</div>" +
-          "Assigned To" + "<br><div>" + assignedTo + "</div>" + "<br><div>" + saveTask + "</div>" +  closeDiv);
+        "Description" + "<br><div>" + descrInput + "</div><div>" + saveTask + "</div>" +  closeDiv);
     },
     
     events: {
@@ -66,6 +121,11 @@ var GUI = (function() { //IIFE for all Views
       var newAssignee =  $("#dropDown").val();
       app.tasks.add({username: app.currentUser, creator: app.currentUser, title: newTitle, description: newDesc, assignee: newAssignee});
       console.log(app.tasks.at(5));
+      var newUnassignedTaskView = new UnassignedTasksView();
+      newUnassignedTaskView.render();
+      $("#unassignedTasks").empty();
+      $("#unassignedTasks").append(newUnassignedTaskView.$el);
+      $("#createTaskViewContainer").remove();
     },
 
   });
@@ -97,8 +157,9 @@ var GUI = (function() { //IIFE for all Views
       this.$el.html(label);
       for(var i = 0; i<app.tasks.length; i++){
           if(app.tasks.at(i).get("status") === 'unassigned'){
-          var taskView1 = new TaskView({"model": app.tasks.at(i), "index": 0});
-          this.$el.append(taskView1.$el.html());
+          var taskView1 = new TaskView({"model": app.tasks.at(i), "index": i, parent: this});
+         // console.log(taskView1.get("index"));  
+          this.$el.append(taskView1.$el);
         }
       }
     },
@@ -123,8 +184,8 @@ var GUI = (function() { //IIFE for all Views
       this.$el.html(label);
       for(var i = 0; i<app.tasks.length; i++){
           if(app.tasks.at(i).get("assignee") === app.currentUser){
-            var taskView2 = new TaskView({"model": app.tasks.at(i), "index": 0});
-            this.$el.append(taskView2.$el.html());
+            var taskView2 = new TaskView({"model": app.tasks.at(i), "index": i, parent: this});
+            this.$el.append(taskView2.$el);
           }
       }
     },
@@ -147,12 +208,7 @@ var GUI = (function() { //IIFE for all Views
       var unassignedTasks = '<div id="unassignedTasks"></div>';
       var myTasks = '<div id="myTasks"></div>';
       var buttons = '<button id="createTask">Create Task</button><button id="logout">Logout</button>';
-      //var createTask = '<button id="createTask">Create Task</button>';
       var closeDiv = '</div>';
-//      var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
-//      var descrInput = '<textarea id="description"></textarea>';//text area
-//      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
-//      var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
       this.$el.html(userViewContainer + userHeader + unassignedTasks + myTasks + buttons  +  closeDiv);
     },
 
@@ -182,15 +238,6 @@ var GUI = (function() { //IIFE for all Views
       createTaskView.render();
       //$("#app").empty();
       $("#app").append(createTaskView.$el);
-//      var task = new IssueModel();
-//      app.tasks.add(task);
-//      console.log("createTask is running:", task);
-//      console.log('here is a task ' + app.tasks.get(4));
-    // this.model.set({'title': titleText});
-    // app.tasks.push({"title": titleText});
-    // var descriptionText = $(this.el).find('input#description').val();
-    // this.model.set({'title': description});
-    //   var descrStr = this.$el.find("#description").val();
 
     },
   });
