@@ -1,64 +1,117 @@
 var GUI = (function() { //IIFE for all Views
 
+  //TO-DO LIST:
+  //Get text entered into "Task Title" textbox to display
+
+  //////////////////////////////////////////////////////////////////////////////
+  //NOTES FOR TaskView:
+  // -This view sets displays the object of each task
+  // -When app.tasks 'update', this view renders and displays/does not display the
+  // changed objbect
+  //////////////////////////////////////////////////////////////////////////////
+
   var TaskView = Backbone.View.extend({
+
     render: function() {
-      var title = app.tasks.get("title");
-      var desc = app.tasks.get("description");
-      var creator = app.tasks.get("creator");
-      var assignee = app.tasks.get("assignee");
-      var status = app.tasks.get("status");
-      var taskEl = '<h3>' + title + '</h3><br><p>' + desc + '</p><br>';
-      var assignedEl = '<p>' + assignee + '</p>';
-      var creatorEl = '<p>' + creator + '</p>';
-      var save = '<button id="save">Save</button>';
-      var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
-      this.$el.html("<div><h4>" + title + "</h4>" + "Description: " + desc + "<br> Added By: " + creator + "<br>Assigned To: " + assignee + "<br>Status: " + status + "</div>" + statusEl + save );
+
+      var title = this.model.get("title");
+      var description = this.model.get("description");
+      var creator = this.model.get("creator");
+      var assignee = this.model.get("assignee");
+      var status = this.model.get("status");
+      this.$el.html('<b>' + "Title: " + '</b>' + title  + '<br>' + '<b>' + "Description: " + '</b>' + description + '<br>' + "Creator: " + '</b>' + creator  + '<br>' +  "Assignee: " + '</b>' + assignee + '<br>' + 'Status: ' + status + " " + '<br></br>' );
     },
 
     initialize: function() {
-      console.log("initialize TaskView", this.model);
-      this.listenTo(this.collection, 'update', this.render());
+      this.listenTo(app.tasks, 'update', this.render);
+      this.render();
     },
 
+    listener : function() {
+      console.log("task view is listening");
+    }
+
   });
+
+  //////////////////////////////////////////////////////////////////////////////
+  //NOTES FOR CreateTaskView:
+  // -Not using currently
+  //////////////////////////////////////////////////////////////////////////////
 
   var CreateTaskView = Backbone.View.extend({
-    render: function() {
-      var titleInput;
-      var dropDown = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
-      this.$el.html("Task Title" + "<div>" + titleInput + "</div>" +
-        "Description" + "<br><div>" + descrInput + "</div>" +
-        "<br><div>" + saveBtn);
-    },
-    initialize: function() {
 
-    },
-    events: {
-
-    },
 
   });
 
-  var AppView = Backbone.View.extend({
-
-  });
+  //////////////////////////////////////////////////////////////////////////////
+  //NOTES FOR UnassignedTasksView:
+  // -This is where the tasks display that have the status 'unassigned'
+  // -A for loop goes through app.tasks.length and looks for whether or not
+  // 'status' is === 'unassigned'. If it is, the task that is 'unassigned' displays
+  //in the UnassignedTasksView
+  //////////////////////////////////////////////////////////////////////////////
 
   var UnassignedTasksView = Backbone.View.extend({
-    $el: $('#unassignedTasks'),
+    className: 'unassignedTasksView',
+
+    initalize: function (){
+      this.listenTo(app.tasks, 'change', this.render);
+      this.listenTo(app.tasks, 'update', this.render);
+
+    },
+
+    testFunction: function () {
+       console.log("testFunction is running");
+    },
+
     render: function() {
-      var label = '<h5>Unassigned Tasks</h5>';
-      console.log(app.tasks.at(0).get("title"));
+      var label = '<h2>Unassigned Tasks</h2>';
+      console.log("render is listening");
       this.$el.html(label);
+      for(var i = 0; i<app.tasks.length; i++){
+          if(app.tasks.at(i).get("status") === 'unassigned'){
+          var taskView1 = new TaskView({"model": app.tasks.at(i), "index": 0});
+          this.$el.append(taskView1.$el.html());
+        }
+      }
     },
   });
 
+  //////////////////////////////////////////////////////////////////////////////
+  //NOTES FOR UserTasksView:
+  // -This is where the tasks display that are assigned to the person that is logged in
+  // -A for loop goes through app.tasks.length (main.js) and looks for whether or not
+  // 'assignee' is === 'app.currentUser' (user currently logged in) .
+  //If it is, the task that has an 'assignee' displays in their UserTasksView
+  //////////////////////////////////////////////////////////////////////////////
+
   var UserTasksView = Backbone.View.extend({
-    $el: $('#myTasks'),
-    render: function() {
-      var label = '<h5>My Tasks</h5>';
+   className: 'myTasks',
+   initalize: function() {
+     this.listenTo(app.tasks, 'update', this.render);
+   },
+
+  render: function() {
+      var label = '<h2>My Tasks</h2>';
       this.$el.html(label);
+      for(var i = 0; i<app.tasks.length; i++){
+          if(app.tasks.at(i).get("assignee") === app.currentUser){
+          var taskView2 = new TaskView({"model": app.tasks.at(i), "index": 0});
+          this.$el.append(taskView2.$el.html());
+        }
+      }
     },
   });
+
+  //////////////////////////////////////////////////////////////////////////////
+  ////NOTES FOR UserTasksView:
+  // -This is the view that holds the 'UserTasksView', 'UserTasksView',the display
+  //where you create your task, the logout button and it shouws you who is logged in
+  //-When you click 'logout', the view changes back to the 'loginView'
+  //-RIGHT NOW - When you enter text into the textbox titled "Task Title", I am able
+  //to see that app.tasks is now longer then the test info that we have in main.js,
+  //but for some reason it's not displaying in 'UnassignedTasksView'
+  //////////////////////////////////////////////////////////////////////////////
 
   var UserView = Backbone.View.extend({
     render: function(user) {
@@ -69,7 +122,7 @@ var GUI = (function() { //IIFE for all Views
       var buttons = '<button id="logout">Logout</button>';
       var createTask = '<button id="createTask">Create Task</button>';
       var closeDiv = '</div>';
-      titleInput = '<input id= "title" type="text" value="" />';//text box
+      var titleInput = '<input id= "newTaskTitle" type="text" value="" />';//text box
       var descrInput = '<textarea id="description"></textarea>';//text area
       var statusEl = '<select id="taskstatus" name="status"><option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="inProgress">In Progress</option><option value="done">Done</option></select>';
       var assignedTo = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
@@ -80,9 +133,7 @@ var GUI = (function() { //IIFE for all Views
 
     events: {
       "click #logout": "logout",
-      "change #title": "createTask",
-      "change #description": "createTask",
-      "change #assignedTo": "createTask",
+      "change #newTaskTitle": "createTask",
       "click #createTask": "createTask"
 
     },
@@ -99,41 +150,59 @@ var GUI = (function() { //IIFE for all Views
       $("#app").append(loginView.$el);
     },
 
+
     createTask: function() {
-      var titleText = $(this.el).find('input#title').val();
-    this.model.set({'title': titleText});
-    console.log(titleText);
-    var descriptionText = $(this.el).find('input#description').val();
-    this.model.set({'title': description});
-    console.log(descriptionText);
-      var descrStr = this.$el.find("#description").val();
-      var assignedTo = this.
-      this.collection.add({
-        title: titleInfo,
-        description: descrInfo
-      });
+        var task = new IssueModel();
+        app.tasks.add(task);
+      console.log("createTask is running:", app.tasks);
+    // this.model.set({'title': titleText});
+    // app.tasks.push({"title": titleText});
+    // var descriptionText = $(this.el).find('input#description').val();
+    // this.model.set({'title': description});
+    //   var descrStr = this.$el.find("#description").val();
+
     }
   });
 
+  //////////////////////////////////////////////////////////////////////////////
+  ////NOTES FOR LoginView:
+  // -This is where the magic happens. This is the first view you see in the app
+  //when you select a name from the dropdown menu, this is the event that logs you
+  //into the app.  It's also the event that does the following:
+  //*Creates UserView
+  //*Creates UnassignedTasksView
+  //*Creates UserTasksView
+  //*Tells the app that the name selected upon log-in is the name associated with the
+  //tasks in UserTasksView
+  //*Tells the app that the name selected upon log-in is the name displaying at the
+  //top of UserTasksView
+
+
+  //////////////////////////////////////////////////////////////////////////////
+
   var LoginView = Backbone.View.extend({
+    id: "loginViewContainer",
     render: function() {
-      var loginViewContainer = '<div id="loginViewContainer">';
       var label = '<h2>Team SAC Issue Tracker</h2><h3>Please choose your name below to log in...</h3>';
       var dropDown = '<select id = "dropDown"><option value=""></option><option value="Chad">' + app.users.at(2).get("username") + '</option><option value="Sarah">' + app.users.at(1).get("username") + '</option><option value="Anastasia">' + app.users.at(0).get("username") + '</option></select>';
-      this.$el.html(loginViewContainer + label + dropDown);
+      this.$el.html(label + dropDown);
     },
 
-    // initialize : function () {
-    // },
+    initialize : function () {
+      this.listenTo(app.tasks, 'update', this.render);
+
+    },
     events: {
       "change #dropDown": "login"
     },
 
     login: function() {
       var user = $("#dropDown").val();
+      app.currentUser = user;
       var userModel = app.users.findWhere({
         username: user
       });
+
       var userTasksModel = app.users.where({
         assignee: user
       });
@@ -143,10 +212,10 @@ var GUI = (function() { //IIFE for all Views
       });
       var newUnassignedTaskView = new UnassignedTasksView();
       var newUserTasksView = new UserTasksView();
-      var newUnassignedTaskList = new TaskView();
-      var newUserTaskList = new TaskView({
-        'model': app.tasks
-      });
+      // var newUnassignedTaskList = new TaskView();
+      // var newUserTaskList = new TaskView({
+      //   'model': app.tasks
+      // });
       newUserView.render(user);
       newUnassignedTaskView.render();
       newUserTasksView.render();
@@ -154,8 +223,8 @@ var GUI = (function() { //IIFE for all Views
       $("#app").append(newUserView.$el);
       $("#unassignedTasks").append(newUnassignedTaskView.$el);
       $("#myTasks").append(newUserTasksView.$el);
-      $("#unassignedTasks").append(newUnassignedTaskList.$el);
-      $("#myTasks").append(newUserTaskList.$el);
+      // $("#unassignedTasks").append(newUnassignedTaskList.$el);
+      // $("#myTasks").append(newUserTaskList.$el);
     }
   });
 
@@ -173,15 +242,6 @@ var GUI = (function() { //IIFE for all Views
     var firstView = new LoginView();
     firstView.render();
     $("#app").append(firstView.$el);
-
-createTaskView = new CreateTaskView({collection: app.tasks});
-createTaskView.render();
-
-$(el).append(createTaskView.$el);
-unassignedTasksView = new UnassignedTasksView({collection: app.tasks});
-unassignedTasksView.render();
-$(el).append(unassignedTasksView.$el);
-
   }
 
   return GUI;
