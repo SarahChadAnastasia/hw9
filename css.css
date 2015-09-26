@@ -5,7 +5,7 @@
 }
 
 #dropDown{
-	border: solid 5px black;
+/*	border: solid 5px black;*/
     font-size: 16px;
 }
 
@@ -42,6 +42,12 @@
   background-color: lightgrey;
   margin: 0 auto;
 }
+
+/*
+#unassignedTasks taskStatusDropDown {
+  visibility: hidden;
+}
+*/
 
 #myTasks {
   width: 500px;
@@ -85,7 +91,7 @@
 
 #createTaskViewContainer {
   width: 225px;
-  min-height: 300px;
+  min-height: 200px;
   height: auto;
   margin: 10px 0px;
   padding: 10px 10px;
