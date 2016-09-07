@@ -106,13 +106,15 @@ var GUI = (function() { //IIFE for all Views
       var descrInput = '<textarea id="description"></textarea>'; //text area
       //var assignee = this.model.get("assignee");
       var saveTask = '<button id="saveTask">Save Task</button>';
+      var cancelCreate = '<button id="cancelCreate">Cancel</button>';
       var closeDiv = '</div>';
       this.$el.html(createTaskViewContainer + "Task Title" + "<div>" + titleInput + "</div>" +
-        "Description" + "<br><div>" + descrInput + "</div><div>" + saveTask + "</div>" + closeDiv);
+        "Description" + "<br><div>" + descrInput + "</div><div>" + saveTask + "</div><div>" + cancelCreate +"</div>" + closeDiv);
     },
 
     events: {
-      "click #saveTask": "save",
+      "click #saveTask": "save"
+      //"click #cancelCreate": 
     },
 
     save: function() {
